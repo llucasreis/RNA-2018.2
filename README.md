@@ -1,5 +1,5 @@
 # RNA-2018.2
-Solutions for practical activities of "Redes Neurais Artificiais" subject
+Solutions for practical projects of "Redes Neurais Artificiais" subject
 
 | #    | Practival Project                    | Team           |
 | ---- | ------------------------------------- | -------------- |
