@@ -4,6 +4,7 @@ Created on Mon Nov  5 12:48:50 2018
 
 @author: FelipeLaranjeira
 """
+import itertools
 
 def partitions(n):
     assert isinstance(n, int), 'n must be an integer'
@@ -46,9 +47,16 @@ def partitions(n):
             a[m] = x
             m += 1
             n -= x
+
+    for subset in tuples:
+        if not subset[1:] == subset[:-1]:
+            new_subsets = list(itertools.permutations(subset))
+            
+            for ns in new_subsets:
+                if ns not in tuples:
+                    tuples.append(ns)
             
     return tuples
-
-
-tuples = partitions(4)
-print(tuples)
+    
+#tuples = partitions(4)
+#print(tuples)
