@@ -9,7 +9,7 @@
 ## Importação das bibliotecas
 
 
-```
+```python
 import pandas as pd
 import numpy as np
 import combination as comb
@@ -21,87 +21,91 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.neural_network import MLPClassifier
 
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix
 ```
 
 ## Realizando a leitura do *dataset*
 
 
-```
+```python
 df = pd.read_csv('seeds_dataset.txt', sep='\t', header=None)
 df.columns = ["area","perimeter","compactness",
               "length_kernel","width_kernel","asymmetry_coefficient",
               "length_kernel_groove","variety"]
+print(f'Tamanho do dataset: {len(df)}')
 ```
 
-# Analisando o Dataset
+    Tamanho do dataset: 210
+
+
+# Analisando o *Dataset*
 
 ### 1. Histograma do atributo alvo
 
 
-```
+```python
 target_name = "variety"
-g = sns.catplot(x=target_name, data=df, kind="count", palette="muted", height=4.5, aspect=1.5)
+g = sns.catplot(x=target_name, data=df, kind="count", palette="muted", height=4.5, aspect=1.0)
 g.set_xticklabels(['Kama', 'Rosa', 'Canadian'])
 g.set_axis_labels("Classe", "Frequência")
+plt.title('Quantidade de amostras para cada classe')
+plt.show()
 ```
 
 
+![png](resolucao-atividade-4_files/resolucao-atividade-4_8_0.png)
 
 
-    <seaborn.axisgrid.FacetGrid at 0x1e72408abe0>
-
-
-
-
-![png](resolucao-atividade-4_files/resolucao-atividade-4_8_1.png)
-
+Conforme pode ser visto no histograma, as classes do atributo alvo são balanceadas, pois o *dataset* possui um total de 210 amostras e cada classe possui 70 amostras.
 
 ### 2. Heatmap da correlação de Pearson dos atributos do dataset
 
 
-```
+```python
 plt.figure(figsize = (10,7))
 plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 
 corr = df.corr()
 
-sns.heatmap(corr, xticklabels=corr.columns, yticklabels=corr.columns,vmin=-1, vmax=1,linewidths=.5, cmap = "RdBu_r")
+sns.heatmap(corr, xticklabels=corr.columns, yticklabels=corr.columns,vmin=-1, vmax=1,linewidths=.5, cmap = "RdBu_r",annot=True)
+plt.title('Heatmap da correlação de Pearson')
+plt.show()
 ```
 
 
+![png](resolucao-atividade-4_files/resolucao-atividade-4_11_0.png)
 
 
-    <matplotlib.axes._subplots.AxesSubplot at 0x1e724104320>
+O *heatmap* acima exibe a correlação de Pearson entre todos os atributos do *dataset*, como pode ser visto o atributo `length_kernel_groove` possui uma correlação de aproximadamente igual a 0 com o atributo alvo `variety`. Assim, optou-se por remover o atributo do *dataset*.
 
 
-
-
-![png](resolucao-atividade-4_files/resolucao-atividade-4_10_1.png)
-
+```python
+df.drop(['length_kernel_groove'],axis=1,inplace=True)
+```
 
 # Pré-Processamento de Dados
 
+Antes de começar a utilizar o `GridSearchCV`, precisa-se primeiramente preparar o *dataset* e alguns atributos para serem utilizados na busca.
 
-```
+
+```python
 target = df.variety
 df.drop(['variety'],axis=1,inplace=True)
 ```
 
 
-```
-n_i = len(df.columns) #numero de neuronios na camada de entrada
-n_o = 3 #numero de neuronios na camada de saida (sujeito a mudanças)
+```python
+n_i, n_o = len(df.columns), 3
 ```
 
 
-```
+```python
 X_train, X_test, Y_train, Y_test = train_test_split(df,target,test_size=0.3)
 ```
 
 
-```
+```python
 def geometric_pyramid(alpha):
     return alpha*sqrt(n_i*n_o)
 ```
@@ -110,7 +114,7 @@ def geometric_pyramid(alpha):
 Para um `alpha = 2` ou `alpha = 3` o algoritmo para gerar o subconjunto fica bastante pesado. Talvez seja necessário diminuir o valor de `n_i` retirando colunas desnecessárias ou utilizar PCA. Coloquei `alpha = 1` apenas para testar
 
 
-```
+```python
 alpha = [0.5,1]
 n_h = [ceil(geometric_pyramid(a)) for a in alpha]
 hidden_layer_sizes = []
@@ -120,13 +124,12 @@ for n in n_h:
     hidden_layer_sizes = hidden_layer_sizes + subsets
 ```
 
-# Paramêtros para a busca em grade
+# Paramêtros/Hiperparamêtros para a busca em grade
 
-#### Observação:
-Professora pediu pra explicar porquê utilizou tal `solver` para a rede neural. Ela disse que apenas um serviria para o projeto, precisa-se procurar saber qual é
+Na célula seguinte temos os paramêtros a serem passados para as redes neurais. Para o hiperparamêtro *solver*, optou-se por utilizar apenas o `lbfgs` pois o *dataset* desta atividade possui apenas 210 amostras, caracterizando-o como um *dataset* pequeno. Assim, o *solver* `lbfgs` será mais eficiente para o problema.
 
 
-```
+```python
 params = {
     'activation': ['identity', 'logistic','tanh','relu'],
     'hidden_layer_sizes': hidden_layer_sizes,
@@ -134,219 +137,57 @@ params = {
 }
 ```
 
-# Busca em Grade
+# Projetando Redes Neurais através da busca em grade
+
+A acurácia foi selecionada como a métrica de desempenho a ser utilizada para as redes neurais do `GridSearchCV`, e o método de validação cruzada escolhido é o *k-fold* com *k* = 3.
 
 
-```
+```python
 gs = GridSearchCV(MLPClassifier(), params, cv=3, scoring='accuracy', return_train_score=1)
 ```
 
 
-```
-X = df
-y = target
+```python
+X,y = df,target
 ```
 
 
-```
+```python
 gs.fit(X,y);
 ```
 
 
-```
+```python
 pd.DataFrame(gs.cv_results_).drop('params', 1).sort_values(by='rank_test_score').head()
 ```
 
+Acima temos o *DataFrame* das Redes Neurais projetadas com o `GridSearchCV` ordenadas pelo campo `rank_test_score`, ou seja, está sendo exibido as cinco melhores redes neurais criadas. É possível retornar apenas a melhor rede neural através do campo `best_estimator_`, conforme abaixo.
+
+# Avaliando a melhor Rede Neural
 
 
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>mean_fit_time</th>
-      <th>std_fit_time</th>
-      <th>mean_score_time</th>
-      <th>std_score_time</th>
-      <th>param_activation</th>
-      <th>param_hidden_layer_sizes</th>
-      <th>param_solver</th>
-      <th>split0_test_score</th>
-      <th>split1_test_score</th>
-      <th>split2_test_score</th>
-      <th>mean_test_score</th>
-      <th>std_test_score</th>
-      <th>rank_test_score</th>
-      <th>split0_train_score</th>
-      <th>split1_train_score</th>
-      <th>split2_train_score</th>
-      <th>mean_train_score</th>
-      <th>std_train_score</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>4</th>
-      <td>0.080784</td>
-      <td>0.012296</td>
-      <td>0.000333</td>
-      <td>4.704712e-04</td>
-      <td>identity</td>
-      <td>(5,)</td>
-      <td>lbfgs</td>
-      <td>0.986111</td>
-      <td>0.971014</td>
-      <td>0.797101</td>
-      <td>0.919048</td>
-      <td>0.085531</td>
-      <td>1</td>
-      <td>0.985507</td>
-      <td>0.971631</td>
-      <td>1.000000</td>
-      <td>0.985713</td>
-      <td>0.011582</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>0.055519</td>
-      <td>0.013188</td>
-      <td>0.000665</td>
-      <td>4.701342e-04</td>
-      <td>identity</td>
-      <td>(3, 2)</td>
-      <td>lbfgs</td>
-      <td>0.972222</td>
-      <td>0.971014</td>
-      <td>0.797101</td>
-      <td>0.914286</td>
-      <td>0.081977</td>
-      <td>2</td>
-      <td>0.978261</td>
-      <td>0.964539</td>
-      <td>1.000000</td>
-      <td>0.980933</td>
-      <td>0.014600</td>
-    </tr>
-    <tr>
-      <th>0</th>
-      <td>0.066487</td>
-      <td>0.010751</td>
-      <td>0.000333</td>
-      <td>4.703588e-04</td>
-      <td>identity</td>
-      <td>(3,)</td>
-      <td>lbfgs</td>
-      <td>0.972222</td>
-      <td>0.985507</td>
-      <td>0.768116</td>
-      <td>0.909524</td>
-      <td>0.099071</td>
-      <td>3</td>
-      <td>0.985507</td>
-      <td>0.957447</td>
-      <td>1.000000</td>
-      <td>0.980985</td>
-      <td>0.017664</td>
-    </tr>
-    <tr>
-      <th>20</th>
-      <td>0.056848</td>
-      <td>0.003550</td>
-      <td>0.000665</td>
-      <td>4.701903e-04</td>
-      <td>logistic</td>
-      <td>(3,)</td>
-      <td>lbfgs</td>
-      <td>0.972222</td>
-      <td>0.913043</td>
-      <td>0.840580</td>
-      <td>0.909524</td>
-      <td>0.053978</td>
-      <td>3</td>
-      <td>0.971014</td>
-      <td>0.872340</td>
-      <td>1.000000</td>
-      <td>0.947785</td>
-      <td>0.054644</td>
-    </tr>
-    <tr>
-      <th>24</th>
-      <td>0.059507</td>
-      <td>0.000940</td>
-      <td>0.000997</td>
-      <td>5.150430e-07</td>
-      <td>logistic</td>
-      <td>(5,)</td>
-      <td>lbfgs</td>
-      <td>0.944444</td>
-      <td>0.913043</td>
-      <td>0.768116</td>
-      <td>0.876190</td>
-      <td>0.076689</td>
-      <td>5</td>
-      <td>0.934783</td>
-      <td>0.872340</td>
-      <td>0.992908</td>
-      <td>0.933344</td>
-      <td>0.049232</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-
-```
+```python
 best_model = gs.best_estimator_
 ```
 
 
-```
-best_model;
-```
-
-
-```
+```python
 Y_pred = best_model.predict(X_test)
 ```
 
 
-```
+```python
 accuracy_score(Y_test,Y_pred)
 ```
-
-
-
-
-    1.0
-
-
 
 # Exportando para *Markdown*
 
 
-```
-!jupyter nbconvert Atividade4.ipynb --to markdown --output resolucao-atividade-4.md
+```python
+!jupyter nbconvert Atividade_4.ipynb --to markdown --output resolucao-atividade-4.md
 ```
 
-    [NbConvertApp] Converting notebook Atividade4.ipynb to markdown
-    [NbConvertApp] Support files will be in resolucao-atividade-4_files\
-    [NbConvertApp] Making directory resolucao-atividade-4_files
-    [NbConvertApp] Making directory resolucao-atividade-4_files
-    [NbConvertApp] Writing 6969 bytes to resolucao-atividade-4.md
-    
+
+```python
+
+```
