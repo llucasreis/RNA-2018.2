@@ -161,6 +161,159 @@ gs.fit(X,y);
 pd.DataFrame(gs.cv_results_).drop('params', 1).sort_values(by='rank_test_score').head()
 ```
 
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean_fit_time</th>
+      <th>std_fit_time</th>
+      <th>mean_score_time</th>
+      <th>std_score_time</th>
+      <th>param_activation</th>
+      <th>param_hidden_layer_sizes</th>
+      <th>param_solver</th>
+      <th>split0_test_score</th>
+      <th>split1_test_score</th>
+      <th>split2_test_score</th>
+      <th>mean_test_score</th>
+      <th>std_test_score</th>
+      <th>rank_test_score</th>
+      <th>split0_train_score</th>
+      <th>split1_train_score</th>
+      <th>split2_train_score</th>
+      <th>mean_train_score</th>
+      <th>std_train_score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>6</th>
+      <td>0.049931</td>
+      <td>0.000568</td>
+      <td>0.000378</td>
+      <td>0.000074</td>
+      <td>identity</td>
+      <td>(3, 2)</td>
+      <td>lbfgs</td>
+      <td>0.958333</td>
+      <td>0.927536</td>
+      <td>0.797101</td>
+      <td>0.895238</td>
+      <td>0.069800</td>
+      <td>1</td>
+      <td>0.905797</td>
+      <td>0.907801</td>
+      <td>1.000000</td>
+      <td>0.937866</td>
+      <td>0.043943</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>0.049905</td>
+      <td>0.012329</td>
+      <td>0.000321</td>
+      <td>0.000037</td>
+      <td>identity</td>
+      <td>(3,)</td>
+      <td>lbfgs</td>
+      <td>0.944444</td>
+      <td>0.927536</td>
+      <td>0.782609</td>
+      <td>0.885714</td>
+      <td>0.072459</td>
+      <td>2</td>
+      <td>0.891304</td>
+      <td>0.907801</td>
+      <td>1.000000</td>
+      <td>0.933035</td>
+      <td>0.047828</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.043575</td>
+      <td>0.000279</td>
+      <td>0.000358</td>
+      <td>0.000002</td>
+      <td>identity</td>
+      <td>(5,)</td>
+      <td>lbfgs</td>
+      <td>0.958333</td>
+      <td>0.927536</td>
+      <td>0.768116</td>
+      <td>0.885714</td>
+      <td>0.083227</td>
+      <td>2</td>
+      <td>0.884058</td>
+      <td>0.900709</td>
+      <td>1.000000</td>
+      <td>0.928256</td>
+      <td>0.051184</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>0.049238</td>
+      <td>0.000067</td>
+      <td>0.000293</td>
+      <td>0.000007</td>
+      <td>identity</td>
+      <td>(2, 3)</td>
+      <td>lbfgs</td>
+      <td>0.958333</td>
+      <td>0.927536</td>
+      <td>0.768116</td>
+      <td>0.885714</td>
+      <td>0.083227</td>
+      <td>2</td>
+      <td>0.905797</td>
+      <td>0.907801</td>
+      <td>0.985816</td>
+      <td>0.933138</td>
+      <td>0.037258</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>0.042239</td>
+      <td>0.006113</td>
+      <td>0.000363</td>
+      <td>0.000031</td>
+      <td>logistic</td>
+      <td>(5,)</td>
+      <td>lbfgs</td>
+      <td>0.888889</td>
+      <td>0.927536</td>
+      <td>0.811594</td>
+      <td>0.876190</td>
+      <td>0.047881</td>
+      <td>5</td>
+      <td>0.927536</td>
+      <td>0.851064</td>
+      <td>0.943262</td>
+      <td>0.907287</td>
+      <td>0.040271</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
 Acima temos o *DataFrame* das Redes Neurais projetadas com o `GridSearchCV` ordenadas pelo campo `rank_test_score`, ou seja, está sendo exibido as cinco melhores redes neurais criadas. É possível retornar apenas a melhor rede neural através do campo `best_estimator_`, conforme abaixo.
 
 # Avaliando a melhor Rede Neural
@@ -180,12 +333,26 @@ Y_pred = best_model.predict(X_test)
 accuracy_score(Y_test,Y_pred)
 ```
 
+
+
+
+    0.9682539682539683
+
+
+
 # Exportando para *Markdown*
 
 
 ```python
 !jupyter nbconvert Atividade_4.ipynb --to markdown --output resolucao-atividade-4.md
 ```
+
+    [NbConvertApp] Converting notebook Atividade_4.ipynb to markdown
+    [NbConvertApp] Support files will be in resolucao-atividade-4_files/
+    [NbConvertApp] Making directory resolucao-atividade-4_files
+    [NbConvertApp] Making directory resolucao-atividade-4_files
+    [NbConvertApp] Writing 4771 bytes to resolucao-atividade-4.md
+
 
 
 ```python
