@@ -1,7 +1,7 @@
 
 # Atividade 4
 
-## Equipe:
+## Dupla:
 
 * Felipe Getúlio Laranjeira do Nascimento
 * Lucas Pereira Reis
@@ -12,7 +12,7 @@
 ```python
 import pandas as pd
 import numpy as np
-import combination as comb
+from combination import partitions
 from math import *
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -45,10 +45,11 @@ print(f'Tamanho do dataset: {len(df)}')
 
 ```python
 target_name = "variety"
+classes_names = ['Kama','Rosa','Canadian']
 g = sns.catplot(x=target_name, data=df, kind="count", palette="muted", height=4.5, aspect=1.0)
-g.set_xticklabels(['Kama', 'Rosa', 'Canadian'])
+g.set_xticklabels(classes_names)
 g.set_axis_labels("Classe", "Frequência")
-plt.title('Quantidade de amostras para cada classe')
+plt.title('Histograma de classes')
 plt.show()
 ```
 
@@ -77,7 +78,7 @@ plt.show()
 ![png](resolucao-atividade-4_files/resolucao-atividade-4_11_0.png)
 
 
-O *heatmap* acima exibe a correlação de Pearson entre todos os atributos do *dataset*, como pode ser visto o atributo `length_kernel_groove` possui uma correlação de aproximadamente igual a 0 com o atributo alvo `variety`. Assim, optou-se por remover o atributo do *dataset*.
+O *heatmap* acima exibe a correlação de Pearson entre todos os atributos do *dataset*, como pode ser visto o atributo `length_kernel_groove` possui uma correlação de aproximadamente igual a 0 com o atributo alvo `variety`. Assim, optou-se por removê-lo do *dataset*.
 
 
 ```python
@@ -96,7 +97,7 @@ df.drop(['variety'],axis=1,inplace=True)
 
 
 ```python
-n_i, n_o = len(df.columns), 3
+input_neurons_amount, output_neurons_amount = len(df.columns), 3
 ```
 
 
@@ -106,27 +107,31 @@ X_train, X_test, Y_train, Y_test = train_test_split(df,target,test_size=0.3)
 
 
 ```python
-def geometric_pyramid(alpha):
-    return alpha*sqrt(n_i*n_o)
-```
+def hidden_neurons_amount(alpha):
+    return alpha * sqrt(input_neurons_amount * output_neurons_amount)
 
-#### Observação:
-Para um `alpha = 2` ou `alpha = 3` o algoritmo para gerar o subconjunto fica bastante pesado. Talvez seja necessário diminuir o valor de `n_i` retirando colunas desnecessárias ou utilizar PCA. Coloquei `alpha = 1` apenas para testar
+def condition_to_insert(partition):
+    return len(partition) <= 4
+```
 
 
 ```python
-alpha = [0.5,1]
-n_h = [ceil(geometric_pyramid(a)) for a in alpha]
+alpha = [0.5, 2, 3]
+hidden_neurons_amounts = [ceil(hidden_neurons_amount(a)) for a in alpha]
 hidden_layer_sizes = []
 
-for n in n_h:
-    subsets = comb.partitions(n)
-    hidden_layer_sizes = hidden_layer_sizes + subsets
+for n in hidden_neurons_amounts:
+    tuples = partitions(n, condition_to_insert)
+    hidden_layer_sizes += tuples
+print(f'Quantidade de possíveis camadas ocultas: {len(hidden_layer_sizes)}')
 ```
+
+    Quantidade de possíveis camadas ocultas: 396
+
 
 # Paramêtros/Hiperparamêtros para a busca em grade
 
-Na célula seguinte temos os paramêtros a serem passados para as redes neurais. Para o hiperparamêtro *solver*, optou-se por utilizar apenas o `lbfgs` pois o *dataset* desta atividade possui apenas 210 amostras, caracterizando-o como um *dataset* pequeno. Assim, o *solver* `lbfgs` será mais eficiente para o problema.
+Na célula seguinte temos os paramêtros a serem passados para as redes neurais. Para o hiperparamêtro *solver*, optou-se por utilizar apenas o `lbfgs` pois o *dataset* desta atividade possui apenas 210 amostras, caracterizando-o como um *dataset* pequeno. Assim, o *solver* `lbfgs` será mais eficiente e irá convergir mais rápido para o problema.
 
 
 ```python
@@ -153,8 +158,34 @@ X,y = df,target
 
 
 ```python
-gs.fit(X,y);
+gs.fit(X,y)
 ```
+
+
+
+
+    GridSearchCV(cv=3, error_score='raise',
+           estimator=MLPClassifier(activation='relu', alpha=0.0001, batch_size='auto', beta_1=0.9,
+           beta_2=0.999, early_stopping=False, epsilon=1e-08,
+           hidden_layer_sizes=(100,), learning_rate='constant',
+           learning_rate_init=0.001, max_iter=200, momentum=0.9,
+           nesterovs_momentum=True, power_t=0.5, random_state=None,
+           shuffle=True, solver='adam', tol=0.0001, validation_fraction=0.1,
+           verbose=False, warm_start=False),
+           fit_params=None, iid=True, n_jobs=1,
+           param_grid={'activation': ['identity', 'logistic', 'tanh', 'relu'], 'hidden_layer_sizes': [(3,), (1, 2), (2, 1), (1, 1, 1), (9,), (8, 1), (1, 8), (2, 7), (7, 2), (7, 1, 1), (1, 7, 1), (1, 1, 7), (6, 3), (3, 6), (1, 6, 2), (1, 2, 6), (6, 1, 2), (2, 6, 1), (2, 1, 6), (6, 2, 1), (6, 1, 1, 1), (1, 1, 1,..., 4, 2), (2, 4, 4, 3), (3, 3, 4, 3), (3, 3, 3, 4), (4, 3, 3, 3), (3, 4, 3, 3)], 'solver': ['lbfgs']},
+           pre_dispatch='2*n_jobs', refit=True, return_train_score=1,
+           scoring='accuracy', verbose=0)
+
+
+
+
+```python
+print(f'Quantidade de Redes Neurais projetadas: {len(pd.DataFrame(gs.cv_results_))}')
+```
+
+    Quantidade de Redes Neurais projetadas: 1584
+
 
 
 ```python
@@ -204,109 +235,109 @@ pd.DataFrame(gs.cv_results_).drop('params', 1).sort_values(by='rank_test_score')
   </thead>
   <tbody>
     <tr>
-      <th>6</th>
-      <td>0.049931</td>
-      <td>0.000568</td>
-      <td>0.000378</td>
-      <td>0.000074</td>
+      <th>448</th>
+      <td>0.066222</td>
+      <td>0.000157</td>
+      <td>0.000348</td>
+      <td>0.000008</td>
+      <td>logistic</td>
+      <td>(4, 2, 3)</td>
+      <td>lbfgs</td>
+      <td>0.972222</td>
+      <td>0.884058</td>
+      <td>0.840580</td>
+      <td>0.900000</td>
+      <td>0.055063</td>
+      <td>1</td>
+      <td>0.847826</td>
+      <td>0.865248</td>
+      <td>0.957447</td>
+      <td>0.890174</td>
+      <td>0.048098</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>0.058426</td>
+      <td>0.000354</td>
+      <td>0.000340</td>
+      <td>0.000026</td>
       <td>identity</td>
-      <td>(3, 2)</td>
+      <td>(2, 4, 3)</td>
+      <td>lbfgs</td>
+      <td>0.958333</td>
+      <td>0.927536</td>
+      <td>0.811594</td>
+      <td>0.900000</td>
+      <td>0.063117</td>
+      <td>1</td>
+      <td>0.905797</td>
+      <td>0.914894</td>
+      <td>0.936170</td>
+      <td>0.918954</td>
+      <td>0.012728</td>
+    </tr>
+    <tr>
+      <th>353</th>
+      <td>0.070038</td>
+      <td>0.002685</td>
+      <td>0.000395</td>
+      <td>0.000015</td>
+      <td>identity</td>
+      <td>(2, 4, 5, 2)</td>
+      <td>lbfgs</td>
+      <td>0.944444</td>
+      <td>0.942029</td>
+      <td>0.797101</td>
+      <td>0.895238</td>
+      <td>0.068658</td>
+      <td>3</td>
+      <td>0.869565</td>
+      <td>0.865248</td>
+      <td>0.957447</td>
+      <td>0.897420</td>
+      <td>0.042482</td>
+    </tr>
+    <tr>
+      <th>390</th>
+      <td>0.067096</td>
+      <td>0.000481</td>
+      <td>0.000418</td>
+      <td>0.000053</td>
+      <td>identity</td>
+      <td>(3, 4, 4, 2)</td>
+      <td>lbfgs</td>
+      <td>0.944444</td>
+      <td>0.927536</td>
+      <td>0.811594</td>
+      <td>0.895238</td>
+      <td>0.058921</td>
+      <td>3</td>
+      <td>0.898551</td>
+      <td>0.886525</td>
+      <td>0.985816</td>
+      <td>0.923630</td>
+      <td>0.044245</td>
+    </tr>
+    <tr>
+      <th>385</th>
+      <td>0.068051</td>
+      <td>0.001706</td>
+      <td>0.000401</td>
+      <td>0.000046</td>
+      <td>identity</td>
+      <td>(4, 3, 2, 4)</td>
       <td>lbfgs</td>
       <td>0.958333</td>
       <td>0.927536</td>
       <td>0.797101</td>
       <td>0.895238</td>
       <td>0.069800</td>
-      <td>1</td>
+      <td>3</td>
       <td>0.905797</td>
-      <td>0.907801</td>
-      <td>1.000000</td>
-      <td>0.937866</td>
-      <td>0.043943</td>
-    </tr>
-    <tr>
-      <th>0</th>
-      <td>0.049905</td>
-      <td>0.012329</td>
-      <td>0.000321</td>
-      <td>0.000037</td>
-      <td>identity</td>
-      <td>(3,)</td>
-      <td>lbfgs</td>
-      <td>0.944444</td>
-      <td>0.927536</td>
-      <td>0.782609</td>
-      <td>0.885714</td>
-      <td>0.072459</td>
-      <td>2</td>
-      <td>0.891304</td>
-      <td>0.907801</td>
-      <td>1.000000</td>
-      <td>0.933035</td>
-      <td>0.047828</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.043575</td>
-      <td>0.000279</td>
-      <td>0.000358</td>
-      <td>0.000002</td>
-      <td>identity</td>
-      <td>(5,)</td>
-      <td>lbfgs</td>
-      <td>0.958333</td>
-      <td>0.927536</td>
-      <td>0.768116</td>
-      <td>0.885714</td>
-      <td>0.083227</td>
-      <td>2</td>
-      <td>0.884058</td>
-      <td>0.900709</td>
-      <td>1.000000</td>
-      <td>0.928256</td>
-      <td>0.051184</td>
-    </tr>
-    <tr>
-      <th>12</th>
-      <td>0.049238</td>
-      <td>0.000067</td>
-      <td>0.000293</td>
-      <td>0.000007</td>
-      <td>identity</td>
-      <td>(2, 3)</td>
-      <td>lbfgs</td>
-      <td>0.958333</td>
-      <td>0.927536</td>
-      <td>0.768116</td>
-      <td>0.885714</td>
-      <td>0.083227</td>
-      <td>2</td>
-      <td>0.905797</td>
-      <td>0.907801</td>
-      <td>0.985816</td>
-      <td>0.933138</td>
-      <td>0.037258</td>
-    </tr>
-    <tr>
-      <th>24</th>
-      <td>0.042239</td>
-      <td>0.006113</td>
-      <td>0.000363</td>
-      <td>0.000031</td>
-      <td>logistic</td>
-      <td>(5,)</td>
-      <td>lbfgs</td>
-      <td>0.888889</td>
-      <td>0.927536</td>
-      <td>0.811594</td>
-      <td>0.876190</td>
-      <td>0.047881</td>
-      <td>5</td>
-      <td>0.927536</td>
-      <td>0.851064</td>
-      <td>0.943262</td>
-      <td>0.907287</td>
-      <td>0.040271</td>
+      <td>0.886525</td>
+      <td>0.992908</td>
+      <td>0.928410</td>
+      <td>0.046281</td>
     </tr>
   </tbody>
 </table>
@@ -321,12 +352,26 @@ Acima temos o *DataFrame* das Redes Neurais projetadas com o `GridSearchCV` orde
 
 ```python
 best_model = gs.best_estimator_
+print(best_model)
 ```
+
+    MLPClassifier(activation='identity', alpha=0.0001, batch_size='auto',
+           beta_1=0.9, beta_2=0.999, early_stopping=False, epsilon=1e-08,
+           hidden_layer_sizes=(2, 4, 3), learning_rate='constant',
+           learning_rate_init=0.001, max_iter=200, momentum=0.9,
+           nesterovs_momentum=True, power_t=0.5, random_state=None,
+           shuffle=True, solver='lbfgs', tol=0.0001, validation_fraction=0.1,
+           verbose=False, warm_start=False)
+
 
 
 ```python
 Y_pred = best_model.predict(X_test)
 ```
+
+Para esta atividade, será utilizado como métrica a acurácia. Porém também será exibido a matriz de confusão da melhor rede neural apenas para visualizar o seu comportamento.
+
+## Acurácia
 
 
 ```python
@@ -336,22 +381,27 @@ accuracy_score(Y_test,Y_pred)
 
 
 
-    0.9682539682539683
+    0.9523809523809523
 
 
 
-# Exportando para *Markdown*
+## Matriz de Confusão
 
 
 ```python
-!jupyter nbconvert Atividade_4.ipynb --to markdown --output resolucao-atividade-4.md
+plt.figure(figsize = (6,6))
+
+g = sns.heatmap(confusion_matrix(Y_test,Y_pred),annot=True,square=True,fmt="d",cmap="Blues")
+g.set_xticklabels(classes_names)
+g.set_yticklabels(classes_names)
+g.set_ylabel('Rótulo real')
+g.set_xlabel('Rótulo previsto')
+g.set_title('Matriz de Confusão')
+plt.show()
 ```
 
-    [NbConvertApp] Converting notebook Atividade_4.ipynb to markdown
-    [NbConvertApp] Support files will be in resolucao-atividade-4_files/
-    [NbConvertApp] Making directory resolucao-atividade-4_files
-    [NbConvertApp] Making directory resolucao-atividade-4_files
-    [NbConvertApp] Writing 4771 bytes to resolucao-atividade-4.md
+
+![png](resolucao-atividade-4_files/resolucao-atividade-4_39_0.png)
 
 
 
