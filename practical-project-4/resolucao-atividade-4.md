@@ -114,6 +114,8 @@ def condition_to_insert(partition):
     return len(partition) <= 4
 ```
 
+##### Mesmo sabendo que duas camadas de neurônios ocultos são suficientes, optamos por testar redes com até 4 camadas para se ter mais redes para treinar, totalizando 396 configurações de distribuição de camadas ocultas.
+
 
 ```python
 alpha = [0.5, 2, 3]
@@ -123,10 +125,10 @@ hidden_layer_sizes = []
 for n in hidden_neurons_amounts:
     tuples = partitions(n, condition_to_insert)
     hidden_layer_sizes += tuples
-print(f'Quantidade de possíveis camadas ocultas: {len(hidden_layer_sizes)}')
+print(f'Quantidade de configurações de distribuição de camadas ocultas: {len(hidden_layer_sizes)}')
 ```
 
-    Quantidade de possíveis camadas ocultas: 396
+    Quantidade de configurações de distribuição de camadas ocultas: 396
     
 
 # Parâmetros/Hiperparâmetros para a busca em grade
@@ -235,34 +237,13 @@ pd.DataFrame(gs.cv_results_).drop('params', 1).sort_values(by='rank_test_score')
   </thead>
   <tbody>
     <tr>
-      <th>448</th>
-      <td>0.066222</td>
-      <td>0.000157</td>
-      <td>0.000348</td>
-      <td>0.000008</td>
-      <td>logistic</td>
-      <td>(4, 2, 3)</td>
-      <td>lbfgs</td>
-      <td>0.972222</td>
-      <td>0.884058</td>
-      <td>0.840580</td>
-      <td>0.900000</td>
-      <td>0.055063</td>
-      <td>1</td>
-      <td>0.847826</td>
-      <td>0.865248</td>
-      <td>0.957447</td>
-      <td>0.890174</td>
-      <td>0.048098</td>
-    </tr>
-    <tr>
-      <th>50</th>
-      <td>0.058426</td>
-      <td>0.000354</td>
-      <td>0.000340</td>
-      <td>0.000026</td>
+      <th>302</th>
+      <td>0.072004</td>
+      <td>0.000817</td>
+      <td>0.000667</td>
+      <td>4.714266e-04</td>
       <td>identity</td>
-      <td>(2, 4, 3)</td>
+      <td>(6, 3, 2, 2)</td>
       <td>lbfgs</td>
       <td>0.958333</td>
       <td>0.927536</td>
@@ -270,74 +251,95 @@ pd.DataFrame(gs.cv_results_).drop('params', 1).sort_values(by='rank_test_score')
       <td>0.900000</td>
       <td>0.063117</td>
       <td>1</td>
-      <td>0.905797</td>
-      <td>0.914894</td>
-      <td>0.936170</td>
-      <td>0.918954</td>
-      <td>0.012728</td>
-    </tr>
-    <tr>
-      <th>353</th>
-      <td>0.070038</td>
-      <td>0.002685</td>
-      <td>0.000395</td>
-      <td>0.000015</td>
-      <td>identity</td>
-      <td>(2, 4, 5, 2)</td>
-      <td>lbfgs</td>
-      <td>0.944444</td>
-      <td>0.942029</td>
-      <td>0.797101</td>
-      <td>0.895238</td>
-      <td>0.068658</td>
-      <td>3</td>
-      <td>0.869565</td>
-      <td>0.865248</td>
-      <td>0.957447</td>
-      <td>0.897420</td>
-      <td>0.042482</td>
-    </tr>
-    <tr>
-      <th>390</th>
-      <td>0.067096</td>
-      <td>0.000481</td>
-      <td>0.000418</td>
-      <td>0.000053</td>
-      <td>identity</td>
-      <td>(3, 4, 4, 2)</td>
-      <td>lbfgs</td>
-      <td>0.944444</td>
-      <td>0.927536</td>
-      <td>0.811594</td>
-      <td>0.895238</td>
-      <td>0.058921</td>
-      <td>3</td>
       <td>0.898551</td>
-      <td>0.886525</td>
-      <td>0.985816</td>
-      <td>0.923630</td>
-      <td>0.044245</td>
+      <td>0.907801</td>
+      <td>1.000000</td>
+      <td>0.935451</td>
+      <td>0.045799</td>
     </tr>
     <tr>
-      <th>385</th>
-      <td>0.068051</td>
-      <td>0.001706</td>
-      <td>0.000401</td>
-      <td>0.000046</td>
+      <th>298</th>
+      <td>0.072671</td>
+      <td>0.000471</td>
+      <td>0.001000</td>
+      <td>1.123916e-07</td>
       <td>identity</td>
-      <td>(4, 3, 2, 4)</td>
+      <td>(3, 6, 2, 2)</td>
       <td>lbfgs</td>
       <td>0.958333</td>
       <td>0.927536</td>
       <td>0.797101</td>
       <td>0.895238</td>
       <td>0.069800</td>
-      <td>3</td>
+      <td>2</td>
       <td>0.905797</td>
-      <td>0.886525</td>
+      <td>0.900709</td>
+      <td>0.985816</td>
+      <td>0.930774</td>
+      <td>0.038976</td>
+    </tr>
+    <tr>
+      <th>363</th>
+      <td>0.072671</td>
+      <td>0.000471</td>
+      <td>0.000667</td>
+      <td>4.714266e-04</td>
+      <td>identity</td>
+      <td>(2, 2, 5, 4)</td>
+      <td>lbfgs</td>
+      <td>0.972222</td>
+      <td>0.927536</td>
+      <td>0.782609</td>
+      <td>0.895238</td>
+      <td>0.080887</td>
+      <td>2</td>
+      <td>0.869565</td>
+      <td>0.907801</td>
+      <td>0.985816</td>
+      <td>0.921061</td>
+      <td>0.048376</td>
+    </tr>
+    <tr>
+      <th>311</th>
+      <td>0.066671</td>
+      <td>0.000471</td>
+      <td>0.000000</td>
+      <td>0.000000e+00</td>
+      <td>identity</td>
+      <td>(3, 5, 5)</td>
+      <td>lbfgs</td>
+      <td>0.958333</td>
+      <td>0.927536</td>
+      <td>0.797101</td>
+      <td>0.895238</td>
+      <td>0.069800</td>
+      <td>2</td>
+      <td>0.905797</td>
+      <td>0.907801</td>
       <td>0.992908</td>
-      <td>0.928410</td>
-      <td>0.046281</td>
+      <td>0.935502</td>
+      <td>0.040600</td>
+    </tr>
+    <tr>
+      <th>361</th>
+      <td>0.072671</td>
+      <td>0.000471</td>
+      <td>0.000667</td>
+      <td>4.714266e-04</td>
+      <td>identity</td>
+      <td>(5, 2, 4, 2)</td>
+      <td>lbfgs</td>
+      <td>0.958333</td>
+      <td>0.913043</td>
+      <td>0.811594</td>
+      <td>0.895238</td>
+      <td>0.061383</td>
+      <td>2</td>
+      <td>0.905797</td>
+      <td>0.900709</td>
+      <td>0.992908</td>
+      <td>0.933138</td>
+      <td>0.042315</td>
     </tr>
   </tbody>
 </table>
@@ -357,7 +359,7 @@ print(best_model)
 
     MLPClassifier(activation='identity', alpha=0.0001, batch_size='auto',
            beta_1=0.9, beta_2=0.999, early_stopping=False, epsilon=1e-08,
-           hidden_layer_sizes=(2, 4, 3), learning_rate='constant',
+           hidden_layer_sizes=(6, 3, 2, 2), learning_rate='constant',
            learning_rate_init=0.001, max_iter=200, momentum=0.9,
            nesterovs_momentum=True, power_t=0.5, random_state=None,
            shuffle=True, solver='lbfgs', tol=0.0001, validation_fraction=0.1,
@@ -401,5 +403,9 @@ plt.show()
 ```
 
 
-![png](resolucao-atividade-4_files/resolucao-atividade-4_39_0.png)
+![png](resolucao-atividade-4_files/resolucao-atividade-4_40_0.png)
 
+
+## Conclusão
+
+Após diversos treinamentos e testes, percebeu-se que a retirada da coluna no início do problema (`length_kernel_groove`) impossibilitou a ocorrência de overfitting, aumentando a capacidade de generalização das redes neurais. Além disso, embora o dataset não seja tão extenso, foi possível fazer vários treinamentos, sendo geradas mais de 1500 redes neurais para o dataset. Vale ressaltar que a utilização do solver lbfgs permitiu uma rápida convergência das redes neurais devido a sua utilização ser voltada para projetos com pouco dados, em contraste com  SGD que converge após  milhares de exemplos de treinamento (cerca de 10^6).
