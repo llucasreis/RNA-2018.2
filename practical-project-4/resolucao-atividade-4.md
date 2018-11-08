@@ -36,7 +36,7 @@ print(f'Tamanho do dataset: {len(df)}')
 ```
 
     Tamanho do dataset: 210
-
+    
 
 # Analisando o *Dataset*
 
@@ -127,11 +127,11 @@ print(f'Quantidade de possíveis camadas ocultas: {len(hidden_layer_sizes)}')
 ```
 
     Quantidade de possíveis camadas ocultas: 396
+    
 
+# Parâmetros/Hiperparâmetros para a busca em grade
 
-# Paramêtros/Hiperparamêtros para a busca em grade
-
-Na célula seguinte temos os paramêtros a serem passados para as redes neurais. Para o hiperparamêtro *solver*, optou-se por utilizar apenas o `lbfgs` pois o *dataset* desta atividade possui apenas 210 amostras, caracterizando-o como um *dataset* pequeno. Assim, o *solver* `lbfgs` será mais eficiente e irá convergir mais rápido para o problema.
+Na célula seguinte temos os parâmetros a serem passados para as redes neurais. Para o hiperparâmetro *solver*, optou-se por utilizar apenas o `lbfgs` pois o *dataset* desta atividade possui apenas 210 amostras , caracterizando-o como um *dataset* pequeno (com poucos dados). Assim, o *solver* `lbfgs` será mais eficiente e irá convergir mais rápido para o problema.
 
 
 ```python
@@ -185,7 +185,7 @@ print(f'Quantidade de Redes Neurais projetadas: {len(pd.DataFrame(gs.cv_results_
 ```
 
     Quantidade de Redes Neurais projetadas: 1584
-
+    
 
 
 ```python
@@ -362,14 +362,14 @@ print(best_model)
            nesterovs_momentum=True, power_t=0.5, random_state=None,
            shuffle=True, solver='lbfgs', tol=0.0001, validation_fraction=0.1,
            verbose=False, warm_start=False)
-
+    
 
 
 ```python
 Y_pred = best_model.predict(X_test)
 ```
 
-Para esta atividade, será utilizado como métrica a acurácia. Porém também será exibido a matriz de confusão da melhor rede neural apenas para visualizar o seu comportamento.
+Para avaliar a melhor rede neural, será utilizado como métrica a acurácia. Porém também será exibido a matriz de confusão apenas para visualizar o seu comportamento.
 
 ## Acurácia
 
@@ -403,8 +403,3 @@ plt.show()
 
 ![png](resolucao-atividade-4_files/resolucao-atividade-4_39_0.png)
 
-
-
-```python
-
-```
