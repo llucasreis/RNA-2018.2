@@ -7,4 +7,5 @@ Solutions for practical projects of "Redes Neurais Artificiais" subject
 | 2 | Machine Learning's Model Evaluation | [Felipe Getúlio](https://github.com/felipegetulio) |
 | 3 | Perceptron's Learning | [Felipe Getúlio](https://github.com/felipegetulio) |
 | 4 | Seed's Varieties Prediction | [Felipe Getúlio](https://github.com/felipegetulio) |
+| 5 | Breast Cancer's Prediction | [Felipe Getúlio](https://github.com/felipegetulio) |
 
